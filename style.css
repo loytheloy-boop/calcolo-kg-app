@@ -31,4 +31,26 @@ input, select {
 
 h2 {
     color: green;
+
+}
+#copyBtn {
+    background: green;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+}
+
+#copyBtn:hover {
+    background: #0a7a0a;
+}
+
+#copyStatus {
+    margin-top: 10px;
+    color: red;
+    font-weight: bold;
 }
