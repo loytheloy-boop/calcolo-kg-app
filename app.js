@@ -80,44 +80,99 @@ function updatePezzi(i, v) { righe[i].pezzi = parseInt(v); render(); }
 updateGrammature();
 
 function copiaRiepilogo() {
-    const tipo = document.getElementById("tipo").value;
-    const grammatura = document.getElementById("grammatura").value;
-    const coef = grammatura / 10000;
+    const statusEl = document.getElementById("copyStatus");
+    statusEl.innerText = "";
 
-    let testo = `CALCOLO KG\n`;
-    testo += `Tipo: ${tipo}\n`;
-    testo += `Grammatura: ${grammatura}\n`;
-    testo += `Coef: ${coef}\n\n`;
+    try {
+        const tipoEl = document.getElementById("tipo");
+        const grammaturaEl = document.getElementById("grammatura");
 
-    let totaleKg = 0;
-    let totalePezzi = 0;
+        if (!tipoEl || !grammaturaEl) {
+            statusEl.innerText = "Errore: elementi non trovati (tipo/grammatura).";
+            return;
+        }
 
-    righe.forEach((r, i) => {
-        const grpz = r.L1 * r.L2 * coef;
-        const pzcf = 5000 / grpz;
-        const cf = r.pezzi > 0 ? Math.ceil(r.pezzi / pzcf) : 0;
-        const kg = (grpz * r.pezzi) / 1000;
+        const tipo = tipoEl.value;
+        const grammatura = grammaturaEl.value;
 
-        totaleKg += kg;
-        totalePezzi += r.pezzi;
+        if (!grammatura) {
+            statusEl.innerText = "Seleziona una grammatura prima di copiare.";
+            return;
+        }
 
-        testo += `Riga ${i + 1}\n`;
-        testo += `L1: ${r.L1} — L2: ${r.L2}\n`;
-        testo += `Pezzi richiesti: ${r.pezzi}\n`;
-        testo += `gr/pz: ${grpz.toFixed(2)}\n`;
-        testo += `pz/CF: ${pzcf.toFixed(2)}\n`;
-        testo += `CF necessari: ${cf}\n`;
-        testo += `Kg: ${kg.toFixed(2)}\n\n`;
-    });
+        const coef = grammatura / 10000;
 
-    testo += `TOTALE PEZZI: ${totalePezzi}\n`;
-    testo += `TOTALE KG: ${totaleKg.toFixed(2)}\n`;
+        let testo = `CALCOLO KG\n`;
+        testo += `Tipo: ${tipo}\n`;
+        testo += `Grammatura: ${grammatura}\n`;
+        testo += `Coef: ${coef}\n\n`;
 
-    navigator.clipboard.writeText(testo).then(() => {
-        document.getElementById("copyStatus").innerText = "Riepilogo copiato!";
-        setTimeout(() => {
-            document.getElementById("copyStatus").innerText = "";
-        }, 2000);
-    });
+        let totaleKg = 0;
+        let totalePezzi = 0;
+
+        righe.forEach((r, i) => {
+            const grpz = r.L1 * r.L2 * coef;
+            const pzcf = 5000 / grpz;
+            const cf = r.pezzi > 0 ? Math.ceil(r.pezzi / pzcf) : 0;
+            const kg = (grpz * r.pezzi) / 1000;
+
+            totaleKg += kg;
+            totalePezzi += r.pezzi;
+
+            testo += `Riga ${i + 1}\n`;
+            testo += `L1: ${r.L1} — L2: ${r.L2}\n`;
+            testo += `Pezzi richiesti: ${r.pezzi}\n`;
+            testo += `gr/pz: ${grpz.toFixed(2)}\n`;
+            testo += `pz/CF: ${pzcf.toFixed(2)}\n`;
+            testo += `CF necessari: ${cf}\n`;
+            testo += `Kg: ${kg.toFixed(2)}\n\n`;
+        });
+
+        testo += `TOTALE PEZZI: ${totalePezzi}\n`;
+        testo += `TOTALE KG: ${totaleKg.toFixed(2)}\n`;
+
+        // Prima scelta: API moderna
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(testo).then(() => {
+                statusEl.innerText = "Riepilogo copiato!";
+                setTimeout(() => statusEl.innerText = "", 2000);
+            }).catch(err => {
+                console.error("Errore clipboard:", err);
+                fallbackCopyText(testo, statusEl);
+            });
+        } else {
+            // Fallback se clipboard API non c'è
+            fallbackCopyText(testo, statusEl);
+        }
+    } catch (e) {
+        console.error(e);
+        statusEl.innerText = "Errore durante la copia.";
+    }
+}
+
+function fallbackCopyText(testo, statusEl) {
+    const textarea = document.createElement("textarea");
+    textarea.value = testo;
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    try {
+        const ok = document.execCommand("copy");
+        if (ok) {
+            statusEl.innerText = "Riepilogo copiato (fallback)!";
+        } else {
+            statusEl.innerText = "Impossibile copiare automaticamente. Seleziona e copia manualmente.";
+            console.log(testo);
+        }
+    } catch (e) {
+        console.error("Fallback copy error:", e);
+        statusEl.innerText = "Impossibile copiare. Guarda la console per il testo.";
+        console.log(testo);
+    }
+
+    document.body.removeChild(textarea);
+    setTimeout(() => statusEl.innerText = "", 3000);
 }
 
