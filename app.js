@@ -4,12 +4,12 @@ const grammature = {
 };
 
 const righe = [
-    { L1: 16, L2: 100, pezzi: 0 },
-    { L1: 18, L2: 100, pezzi: 0 },
-    { L1: 20, L2: 100, pezzi: 0 },
-    { L1: 22, L2: 100, pezzi: 0 },
-    { L1: 24, L2: 100, pezzi: 0 },
-    { L1: 26, L2: 100, pezzi: 0 }
+    { L1: 16, L2: 16, pezzi: 0 },
+    { L1: 18, L2: 18, pezzi: 0 },
+    { L1: 20, L2: 20, pezzi: 0 },
+    { L1: 22, L2: 22, pezzi: 0 },
+    { L1: 24, L2: 24, pezzi: 0 },
+    { L1: 26, L2: 26, pezzi: 0 }
 ];
 
 function updateGrammature() {
@@ -69,11 +69,12 @@ function render() {
 
     document.getElementById("righe").innerHTML = html;
     document.getElementById("totali").innerHTML =
-        `Totale pezzi: ${totalePezzi} — Totale Kg: ${totaleKg.toFixed(2)}`;
+        `Totale pezzi: ${totalePezzi} â€” Totale Kg: ${totaleKg.toFixed(2)}`;
 }
 
 function updateL1(i, v) { righe[i].L1 = parseFloat(v); render(); }
 function updateL2(i, v) { righe[i].L2 = parseFloat(v); render(); }
 function updatePezzi(i, v) { righe[i].pezzi = parseInt(v); render(); }
+
 
 updateGrammature();
